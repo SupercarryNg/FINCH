@@ -4,12 +4,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
+from sklearn.cluster import KMeans
 
 import umap
 
 import os
 from time import time
 from collections import Counter
+
+from dim_reduce import reduction
 
 
 class Clustering:
@@ -41,19 +44,29 @@ class Clustering:
             feature = df.iloc[:, 1:]
             print('There are {} clusters in the true dataset'.format(len(lbs.unique())))
 
-            feature = minmax_scale.fit_transform(feature)
-            self.data = feature
+            feature = feature / 255.0
+            feature = reduction(feature.values)
+            self.data = feature.data.cpu().numpy()
             self.lbs = lbs
 
     def fit(self):
+        print('Fitting {} dataset with {} method...'.format(self.dataset, self.method))
         if self.method == 'FINCH':
-            print('Fitting {} dataset with {} method...'.format(self.dataset, self.method))
             start = time()
             c, num_clust, req_c = FINCH(self.data)  # c: (N, P) pred labels for each sample
             end = time()
             runTime = end - start
             print("RunTime：", runTime)
             self.res = c
+
+        elif self.method == 'KMeans':
+            start = time()
+            k_means = KMeans(n_clusters=10)
+            k_means.fit(self.data)
+            end = time()
+            runTime = end - start
+            print("RunTime：", runTime)
+            self.res = k_means.labels_.reshape(-1, 1)
 
     @staticmethod
     def reduce(data):
@@ -95,7 +108,7 @@ class Clustering:
 
 
 if __name__ == '__main__':
-    model = Clustering(dataset='mnist')
+    model = Clustering(dataset='mnist', method='KMeans')
     model.load_data()
     model.fit()
     model.visualization()
