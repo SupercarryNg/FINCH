@@ -13,7 +13,7 @@ from time import time
 from collections import Counter
 
 from dim_reduce import reduction
-
+from  sklearn.cluster import DBSCAN
 
 class Clustering:
     def __init__(self, dataset='wine', method='FINCH'):
@@ -49,6 +49,38 @@ class Clustering:
             self.data = feature.data.cpu().numpy()
             self.lbs = lbs
 
+        elif self.dataset == 'seed':
+            df = pd.read_csv('data/Seed_Data.csv', index_col=None)
+            lbs = df.target
+            feature = df.iloc[:, :-1]
+            print('There are {} clusters in the true dataset'.format(len(lbs.unique())))
+
+            feature = minmax_scale.fit_transform(feature)
+            self.data = feature
+            self.lbs = lbs
+
+        elif self.dataset == 'box':
+            df = pd.read_csv('data/boxes3.csv', index_col=None)
+            lbs = df.color
+            feature = df.iloc[:, :-1]
+            print('There are {} clusters in the true dataset'.format(len(lbs.unique())))
+
+            feature = minmax_scale.fit_transform(feature)
+            self.data = feature
+            self.lbs = lbs
+
+
+        elif self.dataset == 'credit':
+            df = pd.read_csv('data/creditcard.csv', index_col=None)
+            lbs = df.Class
+            feature = df.iloc[:, -1:]
+            print('There are {} clusters in the true dataset'.format(len(lbs.unique())))
+
+            feature = minmax_scale.fit_transform(feature)
+            self.data = feature
+            self.lbs = lbs
+
+
     def fit(self):
         print('Fitting {} dataset with {} method...'.format(self.dataset, self.method))
         if self.method == 'FINCH':
@@ -67,6 +99,24 @@ class Clustering:
             runTime = end - start
             print("RunTime：", runTime)
             self.res = k_means.labels_.reshape(-1, 1)
+
+        #eps=0.02,min_samples=10 when is box data
+        #eps=0.07,min_samples=8 when is wine data,
+        #eps=0.02,min_samples=10 when is mnist data
+        #eps=0.04,min_samples=10 when is mnist data
+        elif self.method == 'dbscan':
+            start = time()
+            x=self.data[:,0:2]
+            dbscan= DBSCAN(eps=0.04, min_samples=10).fit(x)
+            labels = dbscan.labels_
+            #y_pred =dbscan.fit_predict(self.data)
+            n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+            print("total cluster is",n_clusters_)
+            end = time()
+            runTime = end - start
+            print("RunTime：", runTime)
+            self.res =labels.reshape(-1, 1)
+
 
     @staticmethod
     def reduce(data):
@@ -108,7 +158,7 @@ class Clustering:
 
 
 if __name__ == '__main__':
-    model = Clustering(dataset='mnist', method='KMeans')
+    model = Clustering(dataset='seed', method='dbscan')
     model.load_data()
     model.fit()
     model.visualization()
