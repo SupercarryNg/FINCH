@@ -3,6 +3,7 @@ import torch
 import pandas as pd
 
 from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
 
 
 class Mydata(Dataset):
@@ -48,17 +49,18 @@ class Autoencoder(nn.Module):
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def reduction(feature, num_epochs=20, lr=1e-4):
+def reduction(feature, num_epochs=80, lr=1e-4):
     dataset = Mydata(feature)
     loader = DataLoader(dataset, batch_size=256, shuffle=True)
-    model = Autoencoder(input_dim=feature.shape[1], latent_dim=144).to(device)
+    model = Autoencoder(input_dim=feature.shape[1], latent_dim=64).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.BCELoss()
+
     for epoch in range(num_epochs):
-        print('-'*20 + 'Epoch {}'.format(epoch + 1) + '-'*20)
+        loop = tqdm(loader, leave=False, total=len(loader))
         loss_sum = 0
         step = 0
-        for inputs in loader:
+        for inputs in loop:
             # Forward
             inputs = inputs.to(device)
             encode, decode = model(inputs)
@@ -71,7 +73,8 @@ def reduction(feature, num_epochs=20, lr=1e-4):
             loss_sum += loss.item()
             step += 1
 
-        print(loss_sum/step)
+            loop.set_description('Epoch[{}/{}]'.format(epoch+1, num_epochs))
+            loop.set_postfix(loss=loss_sum/step)
 
     encoder_outputs, _ = model(torch.from_numpy(feature).float().to(device))
     return encoder_outputs

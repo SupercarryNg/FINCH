@@ -110,7 +110,7 @@ def req_numclust(c, data, req_clust, distance, use_tw_finch=False):
     return c_
 
 
-def FINCH(data, initial_rank=None, req_clust=None, distance='cosine', tw_finch=True, ensure_early_exit=False, verbose=True):
+def FINCH(data, initial_rank=None, req_clust=None, distance='cosine', tw_finch=False, ensure_early_exit=False, verbose=True):
     """ FINCH clustering algorithm.
     :param data: Input matrix with features in rows.
     :param initial_rank: Nx1 first integer neighbor indices (optional).
