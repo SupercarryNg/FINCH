@@ -25,11 +25,11 @@ Implement clustering with finch, K Means, DBScan on various dataset like *wine*,
 
 **Attributes:**
 
-+ **data : ndarray of shape (N, number of features) **
++ **data : ndarray of shape (N, number of features)**
 
   The preprocessed (minmax scale...) features of dataset.
 
-+ **lbs : ndarray of shape (N, 1) **
++ **lbs : ndarray of shape (N, 1)**
 
   The true cluster label of each data.
 
