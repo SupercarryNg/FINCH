@@ -45,7 +45,7 @@ Implement clustering with finch, K Means, DBScan on various dataset like *wine*,
 + **visualization()** plot the cluster results and save them into coordinate directory. Use points to represent each data sample, different color to represent their cluster.
 + **evaluation()** evaluate cluster method with silhouette_score, for FINCH method, it will print silhouette_score for different partition. 
 
-**Examples**
+**Examples:**
 
 ```python
 # You could simply run this proje
@@ -56,7 +56,7 @@ model.visualization()
 model.evaluation()
 ```
 
-**Demo**
+**Demo:**
 
 Please refer to the link: 
 
